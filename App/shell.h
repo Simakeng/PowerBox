@@ -24,6 +24,6 @@ void shell_print_hello_information();
  * @arg fmt format string
  * @arg ... variable arguments
  */
-void shell_print(const char *fmt, ...);
+void shell_print(const char* fmt, ...);
 
 #endif // __SHELL_H__

@@ -10,7 +10,6 @@
  */
 #include <ctype.h>
 #include <string.h>
-#include <stdarg.h>
 #include "libe15-dbg.h"
 
 #ifndef unused
@@ -172,12 +171,112 @@ int get_fmt_string(const char *start, const char **end_out)
     return 0;
 }
 
+void dbg_vprint(const char *msg, va_list ap)
+{
+    const char *ch = msg;
+    while (*ch != 0)
+    {
+        if (*ch == '%')
+        {
+            const char *ch_end = NULL;
+            if (get_fmt_string(ch + 1, &ch_end))
+            {
+                int32_t fmt_specifier = *(ch_end - 1);
+                int32_t fmt_len = ch_end - ch;
+                if (fmt_len > 32)
+                    goto not_a_valid_fmt;
+
+                char fmt[32] = {'%', 0};
+                memcpy(fmt + 1, ch + 1, fmt_len - 1);
+                char buf[64] = {0};
+                char *output = buf;
+
+                switch (fmt_specifier)
+                {
+                case 'd':
+                case 'i':
+                case 'c':
+                {
+                    int32_t d = va_arg(ap, int32_t);
+                    snprintf(buf, 32, fmt, d);
+                    break;
+                }
+
+                case 'u':
+                case 'o':
+                case 'x':
+                case 'X':
+                {
+                    int32_t u = va_arg(ap, uint32_t);
+                    snprintf(buf, 32, fmt, u);
+                    break;
+                }
+
+                case 'F':
+                case 'f':
+                case 'E':
+                case 'e':
+                case 'G':
+                case 'g':
+                case 'A':
+                case 'a':
+                {
+                    double f = va_arg(ap, double);
+                    snprintf(buf, 32, fmt, f);
+                    break;
+                }
+
+                case 's':
+                {
+                    output = va_arg(ap, char *);
+                    break;
+                }
+
+                case '%':
+                {
+                    buf[0] = '%';
+                    buf[1] = 0;
+                    break;
+                }
+                default:
+                    buf[0] = '%';
+                    buf[1] = fmt_specifier;
+                    buf[2] = 0;
+                    break;
+                }
+                dbg_dev_puts(output);
+                ch = ch_end;
+                continue;
+            }
+            else
+            {
+            not_a_valid_fmt:
+                dbg_putc_warper(*ch);
+            }
+        }
+        // The intention is to add a '\r' character before the '\n' character.
+        // If the 'ch' pointer is pointing to the first character of the msg
+        // string, or the previous character is not '\r', then we add it.
+        else if (*ch == '\n')
+        {
+            // Because '||' is a short-circuit operator, if the first condition
+            // is true, the second one will not be evaluated. and if the first
+            // condition is false, then we can safely access the previous
+            // character.
+            if (ch == msg || *(ch - 1) != '\r')
+                dbg_putc_warper('\r');
+            dbg_putc_warper(*ch);
+        }
+        else
+            dbg_putc_warper(*ch);
+
+        ++ch;
+    }
+}
+
 #undef print
 void dbg_print(int32_t level, const char *location, const char *function, const char *msg, ...)
 {
-    va_list args;
-    va_start(args, msg);
-
     unused(location);
     unused(function);
     unused(level);
@@ -243,105 +342,8 @@ void dbg_print(int32_t level, const char *location, const char *function, const 
 #endif
     }
 
-    const char *ch = msg;
-    while (*ch != 0)
-    {
-        if (*ch == '%')
-        {
-            const char *ch_end = NULL;
-            if (get_fmt_string(ch + 1, &ch_end))
-            {
-                int32_t fmt_specifier = *(ch_end - 1);
-                int32_t fmt_len = ch_end - ch;
-                if (fmt_len > 32)
-                    goto not_a_valid_fmt;
-
-                char fmt[32] = {'%', 0};
-                memcpy(fmt + 1, ch + 1, fmt_len - 1);
-                char buf[64] = {0};
-                char *output = buf;
-
-                switch (fmt_specifier)
-                {
-                case 'd':
-                case 'i':
-                case 'c':
-                {
-                    int32_t d = va_arg(args, int32_t);
-                    snprintf(buf, 32, fmt, d);
-                    break;
-                }
-
-                case 'u':
-                case 'o':
-                case 'x':
-                case 'X':
-                {
-                    int32_t u = va_arg(args, uint32_t);
-                    snprintf(buf, 32, fmt, u);
-                    break;
-                }
-
-                case 'F':
-                case 'f':
-                case 'E':
-                case 'e':
-                case 'G':
-                case 'g':
-                case 'A':
-                case 'a':
-                {
-                    double f = va_arg(args, double);
-                    snprintf(buf, 32, fmt, f);
-                    break;
-                }
-
-                case 's':
-                {
-                    output = va_arg(args, char *);
-                    break;
-                }
-
-                case '%':
-                {
-                    buf[0] = '%';
-                    buf[1] = 0;
-                    break;
-                }
-                default:
-                    buf[0] = '%';
-                    buf[1] = fmt_specifier;
-                    buf[2] = 0;
-                    break;
-                }
-                dbg_dev_puts(output);
-                ch = ch_end;
-                continue;
-            }
-            else
-            {
-            not_a_valid_fmt:
-                dbg_putc_warper(*ch);
-            }
-        }
-        // The intention is to add a '\r' character before the '\n' character.
-        // If the 'ch' pointer is pointing to the first character of the msg
-        // string, or the previous character is not '\r', then we add it.
-        else if (*ch == '\n')
-        {
-            // Because '||' is a short-circuit operator, if the first condition
-            // is true, the second one will not be evaluated. and if the first
-            // condition is false, then we can safely access the previous
-            // character.
-            if (ch == msg || *(ch - 1) != '\r')
-                dbg_putc_warper('\r');
-            dbg_putc_warper(*ch);
-        }
-        else
-            dbg_putc_warper(*ch);
-
-        ++ch;
-    }
-
-    va_end(args);
+    va_list ap;
+    va_start(ap, msg);
+    dbg_vprint(msg, ap);
+    va_end(ap);
 }

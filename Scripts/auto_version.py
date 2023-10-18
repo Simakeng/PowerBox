@@ -52,6 +52,8 @@ if(git_branch == 'HEAD'):
     git_branch = "detached-HEAD"
 
 has_remote = True
+git_remote_url = ''
+git_remote_branch = ''
 
 # check if current branch is tracked to a remote
 git_remote = os.popen('git rev-parse --abbrev-ref --symbolic-full-name @{u}').read().strip()
@@ -59,12 +61,10 @@ if (len(git_remote) == 0):
     print("this is a local branch, no remote tracking.")
     git_remote = "local_repo"
     has_remote = False
-
-git_remote_url = ''
-git_remote_branch = ''
+else:
+    git_remote,git_remote_branch = git_remote.split('/')
 if has_remote:
     git_remote_url = os.popen(f'git config --get remote.{git_remote}.url').read().strip()
-    git_remote_branch = os.popen(f'git config --get remote.{git_remote}.push').read().strip()
 
 # check git commit id
 git_commit_id = os.popen('git rev-parse HEAD').read().strip()[:14]
@@ -80,7 +80,7 @@ git_commit_id = git_commit_id + git_status
 # get last commit author, date and message
 git_commit_author = os.popen('git log -1 --pretty=format:"%an"').read().strip()
 git_commit_date = os.popen('git log -1 --pretty=format:"%ad"').read().strip()
-git_commit_message = os.popen('git log -1 --pretty=format:"%f"').read().strip()
+git_commit_message = os.popen('git log -1 --pretty=format:"%s"').read().strip()
 
 # get build time
 build_time = time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())

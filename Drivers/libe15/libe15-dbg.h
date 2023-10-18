@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #ifndef __LIBE15_DBG_H__
 #define __LIBE15_DBG_H__
@@ -106,6 +107,13 @@ extern "C"
      */
     void dbg_print(int32_t level, const char *location, const char *function, const char *msg, ...);
 
+    /**
+     * @brief Print an message using given va_list
+     * 
+     * @param msg The fmt message
+     * @param ap The arguments to the message
+     */
+    void dbg_vprint(const char *msg, va_list ap);
 #ifdef __cplusplus
 }
 #endif // ! #ifdef __cplusplus
