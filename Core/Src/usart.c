@@ -1,27 +1,27 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    usart.c
-  * @brief   This file provides code for the configuration
-  *          of the USART instances.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    usart.c
+ * @brief   This file provides code for the configuration
+ *          of the USART instances.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <libe15-dbg.h>
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -139,6 +139,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF0_USART1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* USART1 interrupt Init */
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
   /* USER CODE END USART1_MspInit 1 */
@@ -164,6 +167,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF1_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* USART2 interrupt Init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
@@ -187,6 +193,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOB, DBG_UART1_RX_Pin|DBG_UART1_TX_Pin);
 
+    /* USART1 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 
   /* USER CODE END USART1_MspDeInit 1 */
@@ -205,6 +213,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOA, MET_MCU_UART_TX_Pin|MET_MCU_UART_RX_Pin);
 
+    /* USART2 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
   /* USER CODE END USART2_MspDeInit 1 */
@@ -212,5 +222,50 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void dbg_uart_init(void)
+{
+  dbg_low_level_io_ops_t ops = {
+      .putc = dbg_uart_write_byte,
+      .puts = dbg_uart_write_string,
+  };
+
+  dbg_print_init(&ops);
+}
+
+int32_t dbg_uart_write_byte(int data)
+{
+  uint32_t timeout = 0x7FF;
+
+  // Wait for TXE flag to be set
+  while (!(USART1->ISR & UART_FLAG_TXE) && --timeout)
+    __NOP();
+
+  // if timeout, return
+  if (timeout == 0)
+    return EOF;
+
+  USART1->TDR = (uint8_t)data;
+  return data;
+}
+
+int32_t dbg_uart_write_string(const char *s)
+{
+  const char *start = s;
+  while (*s)
+  {
+    uint32_t timeout = 0x7FF;
+
+    // Wait for TXE flag to be set
+    while (!(USART1->ISR & UART_FLAG_TXE) && --timeout)
+      __NOP();
+
+    // if timeout, return
+    if (timeout == 0)
+      return EOF;
+
+    USART1->TDR = (uint8_t)*s++;
+  }
+  return s - start;
+}
 
 /* USER CODE END 1 */

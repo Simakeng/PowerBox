@@ -20,7 +20,7 @@ volatile control_flags_t flags = { 0 };
 
 int app_main()
 {
-    shell_print_hello_information();
+    // shell_print_hello_information();
     while (true)
     {
         if (flags.script.eval_timeout)

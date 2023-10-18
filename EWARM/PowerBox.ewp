@@ -355,6 +355,7 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/../App</state>
                     <state>$PROJ_DIR$/../Core/Inc</state>
+                    <state>$PROJ_DIR$/../Drivers/libe15</state>
                     <state>$PROJ_DIR$/../Drivers/STM32G0xx_HAL_Driver/Inc</state>
                     <state>$PROJ_DIR$/../Drivers/STM32G0xx_HAL_Driver/Inc/Legacy</state>
                     <state>$PROJ_DIR$/../Drivers/CMSIS/Device/ST/STM32G0xx/Include</state>
@@ -686,7 +687,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>24</hasPrio>
+                <hasPrio>1</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -1153,6 +1154,12 @@
             <name>CMSIS</name>
             <file>
                 <name>$PROJ_DIR$\..\Core\Src\system_stm32g0xx.c</name>
+            </file>
+        </group>
+        <group>
+            <name>Libe15</name>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\libe15\libe15-dbg.c</name>
             </file>
         </group>
         <group>

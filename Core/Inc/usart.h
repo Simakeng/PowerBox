@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
@@ -44,7 +44,15 @@ void MX_USART1_UART_Init(void);
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+void dbg_uart_init(void);
 
+int32_t dbg_uart_write_byte(int data);
+
+int32_t dbg_uart_write_string(const char *s);
+
+typedef void (*dbg_uart_rx_callback_t)(uint8_t data, uint32_t flag);
+
+void dbg_uart_register_rx_callback(dbg_uart_rx_callback_t callback);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
