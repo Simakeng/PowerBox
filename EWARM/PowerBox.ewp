@@ -62,7 +62,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state>Use the full configuration of the C/C++ runtime library. Full locale interface, C locale, file descriptor support, multibytes in printf and scanf, and hex floats in strtod.</state>
+                    <state>A complete configuration of the C/C++14 runtime library. Full locale interface, C locale, file descriptor support, multibytes in printf and scanf, and hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -99,7 +99,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>33</version>
-                    <state>0</state>
+                    <state>35</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -120,17 +120,17 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state></state>
+                    <state>STM32G030F6	ST STM32G030F6</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>6</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -139,7 +139,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>33</version>
-                    <state>39</state>
+                    <state>35</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -353,6 +353,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
+                    <state>$PROJ_DIR$/../App</state>
                     <state>$PROJ_DIR$/../Core/Inc</state>
                     <state>$PROJ_DIR$/../Drivers/STM32G0xx_HAL_Driver/Inc</state>
                     <state>$PROJ_DIR$/../Drivers/STM32G0xx_HAL_Driver/Inc/Legacy</state>
@@ -609,7 +610,7 @@
                 </option>
                 <option>
                     <name>AOutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.o</state>
                 </option>
                 <option>
                     <name>ALimitErrorsCheck</name>
@@ -685,7 +686,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>0</hasPrio>
+                <hasPrio>24</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -1003,7 +1004,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state></state>
+                    <state>PowerBox_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -1098,6 +1099,18 @@
     <group>
         <name>Application</name>
         <group>
+            <name>App</name>
+            <file>
+                <name>$PROJ_DIR$\..\App\app.main.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\io_manager.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\App\shell.c</name>
+            </file>
+        </group>
+        <group>
             <name>EWARM</name>
             <file>
                 <name>$PROJ_DIR$\startup_stm32g030xx.s</name>
@@ -1112,6 +1125,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Core\Src\gpio.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Core\Src\io_ext.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Core\Src\main.c</name>

@@ -69,6 +69,8 @@ void Error_Handler(void);
 #define MET_MCU_UART_RX_GPIO_Port GPIOA
 #define IO_SPI_MOSI_Pin GPIO_PIN_4
 #define IO_SPI_MOSI_GPIO_Port GPIOA
+#define IO_LATCH_Pin GPIO_PIN_5
+#define IO_LATCH_GPIO_Port GPIOA
 #define ADC_IN_Pin GPIO_PIN_7
 #define ADC_IN_GPIO_Port GPIOA
 #define DBG_UART_CTS_Pin GPIO_PIN_11

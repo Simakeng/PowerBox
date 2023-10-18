@@ -9,21 +9,28 @@
  *
  */
 
+#include "app.main.h"
+
 #include <stdbool.h>
+
+#include <io_manager.h>
+
+// all system flags
+volatile control_flags_t flags = { 0 };
 
 int app_main()
 {
     shell_print_hello_information();
     while (true)
     {
-        if (control_flags.control_script_eval)
+        if (flags.script.eval_timeout)
         {
-            eval_control_script();
+            // eval_control_script();
         }
 
-        if (control_flags.shell_input_complete)
+        if (flags.shell.input_complete)
         {
-            process_shell_input();
+            // process_shell_input();
         }
     }
 }
