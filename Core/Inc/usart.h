@@ -46,11 +46,13 @@ void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 void dbg_uart_init(void);
 
+void rx_irq_handler(void);
+
 int32_t dbg_uart_write_byte(int data);
 
 int32_t dbg_uart_write_string(const char *s);
 
-typedef void (*dbg_uart_rx_callback_t)(uint8_t data, uint32_t flag);
+typedef void (*dbg_uart_rx_callback_t)(uint32_t data, uint32_t flag);
 
 void dbg_uart_register_rx_callback(dbg_uart_rx_callback_t callback);
 /* USER CODE END Prototypes */

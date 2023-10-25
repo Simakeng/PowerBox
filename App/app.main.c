@@ -14,13 +14,15 @@
 #include <stdbool.h>
 
 #include <io_manager.h>
+#include <shell.h>
+
 
 // all system flags
 volatile control_flags_t flags = { 0 };
 
-int app_main()
+int app_main(void)
 {
-    // shell_print_hello_information();
+    shell_print_hello_information();
     while (true)
     {
         if (flags.script.eval_timeout)

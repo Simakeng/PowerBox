@@ -32,5 +32,6 @@ typedef struct
 
 } control_flags_t;
 
+int app_main(void);
 
 #endif // ! __APP_MAIN_H__

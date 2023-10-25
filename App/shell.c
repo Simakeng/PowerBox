@@ -13,22 +13,45 @@
 #include <Version.h>
 #include <logo.h>
 #include <libe15-dbg.h>
+#include <usart.h>
+#include <string.h>
+
+// status flags
+volatile struct {
+    uint32_t cursor_pos;
+    uint32_t esc_match_state;
+    
+    char input_buf[256];
+} shell;
 
 void shell_print(const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    dbg_vprintf(fmt, ap);
+    dbg_vprint(fmt, ap);
     va_end(ap);
 }
 
-void shell_print_hello_information()
+#define shell_putc(ch) dbg_putc(ch)
+
+void shell_print_hello_information(void)
 {
     shell_print(LOGO_ART_STRING);
     shell_print("\n");
     shell_print("PowerBox Version " APP_VERSION_VERSION "\n");
     shell_print("\n");
-    shell_print(APP_VERSION_STRING "\n");
-    shell_print("url: " APP_VERSION_GIT_REMOTE_URL "\n");
-    shell_print("at: " APP_VERSION_GIT_REMOTE_BRANCH "\n");
+    shell_print("build id: " APP_VERSION_STRING "\n");
+    shell_print("url     : " APP_VERSION_GIT_REMOTE_URL "\n");
+    shell_print("branch  : " APP_VERSION_GIT_REMOTE_BRANCH "\n");
+}
+
+void shell_init(void)
+{
+    memset((void*)&shell, 0, sizeof(shell));
+}
+
+void shell_input_callback(uint32_t data, uint32_t flag)
+{
+    if(flag != INPUT_FLAG_END)
+        shell_putc(data);
 }

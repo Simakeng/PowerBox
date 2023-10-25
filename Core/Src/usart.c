@@ -22,6 +22,8 @@
 
 /* USER CODE BEGIN 0 */
 #include <libe15-dbg.h>
+#include <stdbool.h>
+#include <shell.h>
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -222,14 +224,29 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+#define DBGUART USART1
+
+void rx_irq_init(void)
+{
+  DBGUART->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+  DBGUART->CR1 |= USART_CR1_IDLEIE;
+}
+
 void dbg_uart_init(void)
 {
+  // init debug print
   dbg_low_level_io_ops_t ops = {
       .putc = dbg_uart_write_byte,
       .puts = dbg_uart_write_string,
   };
 
   dbg_print_init(&ops);
+
+  // register rx callback
+  dbg_uart_register_rx_callback(shell_input_callback);
+
+  // enable uart irq
+  rx_irq_init();
 }
 
 int32_t dbg_uart_write_byte(int data)
@@ -237,14 +254,14 @@ int32_t dbg_uart_write_byte(int data)
   uint32_t timeout = 0x7FF;
 
   // Wait for TXE flag to be set
-  while (!(USART1->ISR & UART_FLAG_TXE) && --timeout)
+  while (!(DBGUART->ISR & UART_FLAG_TXE) && --timeout)
     __NOP();
 
   // if timeout, return
   if (timeout == 0)
     return EOF;
 
-  USART1->TDR = (uint8_t)data;
+  DBGUART->TDR = (uint8_t)data;
   return data;
 }
 
@@ -256,16 +273,57 @@ int32_t dbg_uart_write_string(const char *s)
     uint32_t timeout = 0x7FF;
 
     // Wait for TXE flag to be set
-    while (!(USART1->ISR & UART_FLAG_TXE) && --timeout)
+    while (!(DBGUART->ISR & UART_FLAG_TXE) && --timeout)
       __NOP();
 
     // if timeout, return
     if (timeout == 0)
       return EOF;
 
-    USART1->TDR = (uint8_t)*s++;
+    DBGUART->TDR = (uint8_t)*s++;
   }
   return s - start;
+}
+
+/**********************************************************
+ *              ASYNC RX
+ **********************************************************/
+
+dbg_uart_rx_callback_t rx_callback = NULL;
+
+#define call_rx_callback(data, flag) \
+  do                                 \
+  {                                  \
+    if (rx_callback != NULL)         \
+      rx_callback((data), (flag));       \
+  } while (0u)
+
+
+void rx_irq_handler(void)
+{
+  static bool rx_idle = true;
+  if (DBGUART->ISR & UART_IT_RXNE)
+  {
+    if(rx_idle)
+    {
+      call_rx_callback(DBGUART->RDR, INPUT_FLAG_FIRST);
+      rx_idle = false;
+    }
+    else
+    {
+      call_rx_callback(DBGUART->RDR, INPUT_FLAG_RECV);
+    }
+  }
+  else if (DBGUART->ISR & UART_IT_IDLE)
+  {
+    call_rx_callback(DBGUART->RDR, INPUT_FLAG_END);
+    rx_idle = true;
+  }
+}
+
+void dbg_uart_register_rx_callback(dbg_uart_rx_callback_t callback)
+{
+  rx_callback = callback;
 }
 
 /* USER CODE END 1 */

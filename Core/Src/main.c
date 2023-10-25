@@ -26,7 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <io_ext.h>
-
+#include <app.main.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,6 +98,8 @@ int main(void)
   dbg_uart_init();
 
   ioext_init();
+
+  app_main();
   /* USER CODE END 2 */
 
   /* Infinite loop */

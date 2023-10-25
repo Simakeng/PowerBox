@@ -114,6 +114,13 @@ extern "C"
      * @param ap The arguments to the message
      */
     void dbg_vprint(const char *msg, va_list ap);
+
+    /**
+     * @brief Put a char into the debug output device
+     * 
+     * @param ch the char to put
+     */
+    int32_t dbg_putc(int32_t ch);
 #ifdef __cplusplus
 }
 #endif // ! #ifdef __cplusplus

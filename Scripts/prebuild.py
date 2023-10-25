@@ -107,6 +107,7 @@ def main():
                       "-o", "Generated/Version.h", "-v", version])
 
     run_python_script('logo_art.py', ["-o", "Generated/logo.h"])
+
     return
 
 

@@ -84,6 +84,11 @@ int32_t dbg_puts_warper(const char *s)
     return cnt;
 }
 
+inline int32_t dbg_putc(int32_t ch)
+{
+    return dbg_putc_warper(ch);
+}
+
 const char *translate_level(int32_t level)
 {
     switch (level)
