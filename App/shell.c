@@ -19,7 +19,11 @@
 // status flags
 volatile struct {
     uint32_t cursor_pos;
+    uint32_t input_len;
+
+    // statmachine flags
     uint32_t esc_match_state;
+    uint32_t utf8_match_state;
     
     char input_buf[256];
 } shell;
@@ -43,15 +47,20 @@ void shell_print_hello_information(void)
     shell_print("build id: " APP_VERSION_STRING "\n");
     shell_print("url     : " APP_VERSION_GIT_REMOTE_URL "\n");
     shell_print("branch  : " APP_VERSION_GIT_REMOTE_BRANCH "\n");
+    shell_print("\n");
 }
 
 void shell_init(void)
 {
     memset((void*)&shell, 0, sizeof(shell));
+
+    shell_print("shell > ");
 }
 
 void shell_input_callback(uint32_t data, uint32_t flag)
 {
-    if(flag != INPUT_FLAG_END)
-        shell_putc(data);
+    if(flag == INPUT_FLAG_END)
+        return;
+    
+    
 }

@@ -23,6 +23,9 @@ volatile control_flags_t flags = { 0 };
 int app_main(void)
 {
     shell_print_hello_information();
+
+    shell_init();
+    
     while (true)
     {
         if (flags.script.eval_timeout)

@@ -302,7 +302,7 @@ dbg_uart_rx_callback_t rx_callback = NULL;
 void rx_irq_handler(void)
 {
   static bool rx_idle = true;
-  if (DBGUART->ISR & UART_IT_RXNE)
+  if (DBGUART->ISR & USART_ISR_RXNE_RXFNE)
   {
     if(rx_idle)
     {
@@ -313,10 +313,13 @@ void rx_irq_handler(void)
     {
       call_rx_callback(DBGUART->RDR, INPUT_FLAG_RECV);
     }
+    DBGUART->RQR |= USART_RQR_RXFRQ;
+
   }
-  else if (DBGUART->ISR & UART_IT_IDLE)
+  else if (DBGUART->ISR & USART_ISR_IDLE)
   {
     call_rx_callback(DBGUART->RDR, INPUT_FLAG_END);
+    DBGUART->ICR |= USART_ICR_IDLECF;
     rx_idle = true;
   }
 }

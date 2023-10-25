@@ -28,7 +28,7 @@ Drivers/**/*.lib
 *.o.rsp
 *.o
 *.out
-
+*.sim
 *.ewt
 
 *.ninja*
