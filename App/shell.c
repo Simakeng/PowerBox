@@ -16,6 +16,8 @@
 #include <usart.h>
 #include <string.h>
 
+#include <fsm_esc_seq.h>
+
 // status flags
 volatile struct {
     uint32_t cursor_pos;
@@ -57,10 +59,28 @@ void shell_init(void)
     shell_print("shell > ");
 }
 
+void shell_input_process_escape_seq(void)
+{
+    esc_seq_t seq = fsm_esc_get_result();
+    fsm_esc_reset();
+    return;
+}
+
 void shell_input_callback(uint32_t data, uint32_t flag)
 {
     if(flag == INPUT_FLAG_END)
         return;
-    
-    
+
+    switch (fsm_esc_input(data))
+    {
+    case FSM_STATE_ACCEPT:
+        shell_input_process_escape_seq();
+    case FSM_STATE_MATCH:
+        return;
+    case FSM_STATE_ERROR:
+    default:
+        fsm_esc_reset();
+        break;
+    } 
+
 }
